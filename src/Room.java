@@ -1,10 +1,11 @@
+import java.net.Socket;
+
 public class Room {
-	private String
-		_IP,
-		_roomName;
+	private String _roomName;
+	private Socket _connection;
 	
-	public Room(String IP, String roomName){
-		_IP = IP;
+	public Room(Socket connection, String roomName){
+		_connection = connection;
 		_roomName = roomName;
 	}
 	
@@ -12,7 +13,7 @@ public class Room {
 		return _roomName;
 	}
 	
-	public String GetIP(){
-		return _IP;
+	public Socket GetAddress(){
+		return _connection;
 	}
 }
