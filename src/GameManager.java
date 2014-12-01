@@ -6,18 +6,13 @@ import java.util.concurrent.ThreadFactory;
 
 public class GameManager{
 	public final int porta = 1000;
-	private final int bufferSize = 65508;
 	
-	private byte[] buffer = new byte[bufferSize];
 	private DatagramPacket packetP1toP2, packetP2toP1;
 	private DatagramSocket socketP1 = null, socketP2 = null;
 	private Thread threadP1toP2, threadP2toP1;
 	
 	//Dava para receber apenas o Address e usar a mesma porta que estava a ser usada
 	public GameManager(InetAddress player1, InetAddress player2) throws Exception{
-		packetP1toP2 = new DatagramPacket(buffer, buffer.length);
-		packetP2toP1 = new DatagramPacket(buffer, buffer.length);
-
 		socketP1 = new DatagramSocket(porta, player1);
 		socketP2 = new DatagramSocket(porta, player2);
 
@@ -25,6 +20,7 @@ public class GameManager{
 			@Override
 			public void run() {
 				try {
+					//os Packets não são inicializados na classe GameManager
 					socketP1.receive(packetP1toP2);
 					socketP2.send(packetP1toP2);
 				} catch (IOException e) {
