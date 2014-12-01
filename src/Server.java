@@ -32,9 +32,7 @@ public class Server{
 			});
 		 
 		 newRoom.start();
-		 System.out.print("Room thread added\n");
 		 searchRooms.start();
-		 System.out.print("Search thread added\n");
 	 }
 	 
 	 public static void NewRoom(){
@@ -146,4 +144,5 @@ public class Server{
 			 
 		 }
 	 }
+
 }
