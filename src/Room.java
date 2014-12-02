@@ -1,3 +1,4 @@
+import java.net.InetAddress;
 import java.net.Socket;
 
 public class Room {
@@ -13,7 +14,7 @@ public class Room {
 		return _roomName;
 	}
 	
-	public Socket GetAddress(){
-		return _connection;
+	public InetAddress GetAddress(){
+		return _connection.getInetAddress();
 	}
 }

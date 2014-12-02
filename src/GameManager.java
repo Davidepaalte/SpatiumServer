@@ -1,49 +1,59 @@
 import java.io.*;
 import java.net.*;
-import java.sql.Connection;
 import java.util.*;
-import java.util.concurrent.ThreadFactory;
 
 public class GameManager{
 	public final int porta = 1000;
 	
-	private DatagramPacket packetP1toP2, packetP2toP1;
-	private DatagramSocket socketP1 = null, socketP2 = null;
-	private Thread threadP1toP2, threadP2toP1;
+	private DatagramPacket packet;
+	private  DatagramSocket sRecieve = null, sSend = null;
+	private Thread thread;
+	private InetAddress recievedAddress;
+
+	public static ArrayList<Game> clientList;
 	
-	//Dava para receber apenas o Address e usar a mesma porta que estava a ser usada
-	public GameManager(InetAddress player1, InetAddress player2) throws Exception{
-		socketP1 = new DatagramSocket(porta, player1);
-		socketP2 = new DatagramSocket(porta, player2);
+	public GameManager(){
+		try{
+		sRecieve = new DatagramSocket(porta);
+		sSend = new DatagramSocket(porta);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 
-		threadP1toP2 = new Thread(new Runnable() {
+		thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					//os Packets não são inicializados na classe GameManager
-					socketP1.receive(packetP1toP2);
-					socketP2.send(packetP1toP2);
+					sRecieve.receive(packet);
+					recievedAddress = packet.getAddress();
+					
+					for (int i = 0; i < clientList.size(); i++){
+						if(clientList.get(i).getPlayer1().equals(recievedAddress)){
+							packet.setAddress(clientList.get(i).getPlayer2());
+							sSend.send(packet);
+						}
+						else if(clientList.get(i).getPlayer2().equals(recievedAddress)){
+							packet.setAddress(clientList.get(i).getPlayer1());
+							sSend.send(packet);
+						}
+					}
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		});
-		
-		threadP2toP1 = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					socketP2.receive(packetP2toP1);
-					socketP1.send(packetP2toP1);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		thread.start();
 	}
-
-	public void Start(){
-		threadP1toP2.start();
-		threadP2toP1.start();
+	
+	public boolean openGameRoom(InetAddress player1, InetAddress player2){
+		Game newGame = new Game(player1, player2);
+		if (!clientList.contains(newGame))
+		{
+			clientList.add(newGame);
+			return true;
+		}
+		else return false;
 	}
 }

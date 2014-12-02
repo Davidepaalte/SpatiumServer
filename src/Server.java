@@ -2,18 +2,16 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import org.omg.CORBA.DataOutputStream;
-
 public class Server{
+	public static GameManager gameManager;
 	public static ArrayList<Room> clientList;
-	public static Boolean newRoomSwitch = true;
-	public static Boolean searchRoomSwitch = true;
 	public final static int
 		defaultCreatePort = 777,
 		defaultSearchPort = 778; //Dados partilhados com o cliente
 	public final static int roomNameLimit = 25;
 	
 	 public static void main(String argv[]){
+		 gameManager = new GameManager();
 		 clientList = new ArrayList<Room>();
 
 		 clientList.add(new Room(null, "room1"));
@@ -39,7 +37,6 @@ public class Server{
 		 //Connection
 	 ServerSocket server;
 	 Socket connection;
-	 SocketAddress clientAdress;
 	 Room newClient;
 	 
 	 //Message input and output
@@ -54,7 +51,7 @@ public class Server{
 		 System.out.print("ServerSocket initialized\n");
 		 
 		 
-		 while (newRoomSwitch) {
+		 while (true) {
 			 System.out.print("Awaiting for new connection...    ");
 			 connection = server.accept();
 			 reader = connection.getInputStream();
@@ -85,7 +82,7 @@ public class Server{
 			 writer.write(1);
 		 }
 		 
-		 server.close();
+		 //server.close();
 		 
 	 } catch (IOException e) {
 		 System.out.print("ERROR: failiure while trying to create a new room.\n" + e.getMessage() + "\nLook at NewRoom() inside try structure.\n\n");
@@ -120,7 +117,7 @@ public class Server{
 		 try {
 			 server = new ServerSocket(defaultSearchPort);
 			 
-			 while (searchRoomSwitch) {
+			 while (true) {
 				 System.out.print("Awaiting for new connection...    \n");
 				 connection = server.accept();
 				 reader = connection.getInputStream();
@@ -138,11 +135,16 @@ public class Server{
 				 connection.close();
 			 }
 			 
-			 server.close();
+			 //server.close();
 			 
 		 } catch (IOException e) {
 			 
 		 }
 	 }
 
+	 public static boolean chooseRoom(Socket searcher, int roomIndex){
+		 boolean result = gameManager.openGameRoom(searcher.getInetAddress(), clientList.get(roomIndex).GetAddress());
+		 clientList.remove(roomIndex);
+		 return result;
+	 }
 }
